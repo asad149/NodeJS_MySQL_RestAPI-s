@@ -15,13 +15,13 @@ const mysqlConnection = mysql.createConnection({
   host: "localhost",
   user: "root",
   password: "root",
-  database: "asad",
+  database: "pos",
   multipleStatements: true,
 });
 
 // Database Connection
 mysqlConnection.connect((err) => {
-  if (!err) console.log("DB Connection succesded");
+  if (!err) console.log("DB Connection succeded");
   else
     console.log(
       "DB connection failer \n Error : " + JSON.stringify(err, undefined, 2)
@@ -40,6 +40,36 @@ app.get("/person", (req, res) => {
     else console.log(err);
   });
 });
+
+
+app.get("/item/:id", (req, res) => {
+  mysqlConnection.query(
+    `SELECT  it.ITEM_NAME,it.SALE_PRICE ,cat.CATEGORY_NAME,scat.SUB_CATEGORY_NAME,cat.CATEGORY_ID,scat.SUB_CATEGORY_ID,it.ITEM_ID
+    FROM  item it , category cat , sub_category scat
+    WHERE  scat.SUB_CATEGORY_ID = ?
+    AND it.STATUS='Y'`,
+    [req.params.id],
+    (err, rows, fields) => {
+      if (!err) res.send(rows);
+      else console.log(err);
+    }
+  );
+});
+
+
+
+app.get("/cat", (req, res) => {
+
+  mysqlConnection.query(`SELECT  cat.CATEGORY_SHORT_NAME , scat.SUB_CATEGORY_SHORT_NAME,cat.CATEGORY_ID , scat.SUB_CATEGORY_ID
+  from category cat , sub_category scat
+  WHERE cat.CATEGORY_ID  = scat.SUB_CATEGORY_ID
+  AND cat.STATUS = 'Y'
+  AND scat.STATUS ='Y'`, (err, rows, fields) => {
+    if (!err) res.send(rows);
+    else console.log(err);
+  });
+});
+
 
 
 // Fetching Specific Record by ID
